@@ -70,8 +70,8 @@
 </div>
 
 <script>
-    // 맨 처음 알려주신 정확한 .csv 연동 주소 원상복구
-    const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY8YUDFCMJyNq3Ezy0eiI_vhwDVn4dWGC22fv7nKkbnQUwc-bLJ1QvdhZF-RwYgNqJXO4IESweU5P_/pub?gid=0&single=true&output=csv";
+    // 유저님의 실시간 구글 스프레드시트 주소
+    const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnK9ZViTblOExASkWl7zzdUNlBQqZfyHlajIY5O_Rlv-yvLCnbHafJDsOyKvfg5RKwxgAUobxOUVns/pub?output=csv";
     
     let songData = [];
     let currentGenre = "전체";
@@ -127,11 +127,13 @@
                 const memo = cols[4] || "";
                 const date = cols[5] || "-";
 
-                // 헤더줄(제목줄) 스킵 처리
+                // 헤더줄 제외 (장르, 제목, 나온 작품 등 제목 행 필터링)
                 if (title === "제목" || title === "" || genre === "장르") continue;
 
-                // 메모란 텍스트 매칭
+                // 유저님 시트 맞춤형 매칭: '노래권' 글자가 포함되어 있으면 체크
                 const needTicket = memo.includes("노래권");
+                
+                // '대강만 가능'이 적혀있으면 풀버전 불가능, 그 외에 비어있거나 다른 글씨면 풀버전 가능 처리
                 const fullVersion = !memo.includes("대강만 가능");
 
                 result.push({ genre, title, artist, work, needTicket, fullVersion, date });
