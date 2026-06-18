@@ -8,6 +8,8 @@
         .container { width: 100%; max-width: 1100px; background: #1e1e1e; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         h1 { margin: 0; color: #fff; font-size: 28px; }
+        .btn-refresh { background: #4caf50; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .btn-refresh:hover { background: #66bb6a; }
         .search-area { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
         .search-box { flex: 1; min-width: 250px; }
         .search-box input { width: calc(100% - 24px); padding: 12px; border: 1px solid #333; border-radius: 8px; background: #2a2a2a; color: #fff; font-size: 16px; }
@@ -31,7 +33,7 @@
 <div class="container">
     <div class="header-area">
         <h1>기찬아 노래책🎶</h1>
-        <span style="font-size: 13px; color: #888;">📊 구글 시트 실시간 연동 중</span>
+        <button class="btn-refresh" onclick="fetchSheetData()">🔄 새로고침</button>
     </div>
 
     <div class="search-area">
@@ -61,63 +63,77 @@
         </thead>
         <tbody id="songList">
             <tr>
-                <td colspan="6" class="status-msg">🎵 노래 목록을 불러오는 중입니다...</td>
+                <td colspan="6" class="status-msg">🎵 구글 시트에서 노래 목록을 가져오는 중...</td>
             </tr>
         </tbody>
     </table>
 </div>
 
 <script>
-    // 보내주신 구글 스프레드시트 CSV 주소 연결
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY8YUDFCMJyNq3Ezy0eiI_vhwDVn4dWGC22fv7nKkbnQUwc-bLJ1QvdhZF-RwYgNqJXO4IESweU5P_/pub?gid=0&single=true&output=csv";
+    // 캐시 방지를 위해 주소 뒤에 실시간 시간(Timestamp)이 자동으로 붙도록 주소 튜닝
+    const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY8YUDFCMJyNq3Ezy0eiI_vhwDVn4dWGC22fv7nKkbnQUwc-bLJ1QvdhZF-RwYgNqJXO4IESweU5P_/pub?gid=0&single=true&output=csv";
     
     let songData = [];
     let currentGenre = "전체";
 
-    // 구글 시트에서 데이터 받아오기
     async function fetchSheetData() {
+        const tbody = document.getElementById("songList");
+        tbody.innerHTML = '<tr><td colspan="6" class="status-msg">🔄 실시간 데이터 동기화 중...</td></tr>';
+        
         try {
-            const response = await fetch(SHEET_CSV_URL);
+            // 브라우저가 옛날 데이터를 기억하지 못하게 주소 강제 차단 갱신
+            const cacheBuster = "&t=" + new Date().getTime();
+            const response = await fetch(BASE_CSV_URL + cacheBuster);
             const data = await response.text();
-            parseCSV(data);
+            
+            parseSimpleCSV(data);
             renderTabs();
             filterSongs();
         } catch (error) {
-            console.error("데이터 로드 실패:", error);
-            document.getElementById("songList").innerHTML = '<tr><td colspan="6" class="status-msg" style="color:#f44336;">❌ 데이터를 불러오지 못했습니다. 스프레드시트 웹 게시 설정을 확인해 주세요.</td></tr>';
+            console.error("데이터 로드 에러:", error);
+            tbody.innerHTML = '<tr><td colspan="6" class="status-msg" style="color:#f44336;">❌ 데이터를 불러오지 못했습니다. 구글 시트 링크를 확인해 주세요.</td></tr>';
         }
     }
 
-    // CSV 데이터 파싱 (쉼표 및 따옴표 예외처리 포함)
-    function parseCSV(text) {
-        const lines = text.split("\n");
+    // 쉼표나 따옴표 오류로 튕기지 않도록 대폭 보완한 안전한 파싱 로직
+    function parseSimpleCSV(text) {
+        const lines = text.split(/\r?\n/);
         const result = [];
         
         for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
+            let line = lines[i].trim();
             if (!line) continue;
             
-            // CSV 행 분리 규칙
-            const cols = [];
-            let match;
-            const lexer = /"([^"\\]*(?:\\.[^"\\]*)*)"|([^,]+)|(?<=,)(?=,)|^(?=,)|(?<=,)$/g;
-            while ((match = lexer.exec(line)) !== null) {
-                cols.push(match[1] || match[2] || "");
+            // 단순 쉼표 분할이 아니라 엑셀 특유의 줄 꼬임 방지 처리
+            let cols = [];
+            let insideQuote = false;
+            let currentColumn = "";
+            
+            for (let j = 0; j < line.length; j++) {
+                let char = line[j];
+                if (char === '"') {
+                    insideQuote = !insideQuote;
+                } else if (char === ',' && !insideQuote) {
+                    cols.push(currentColumn.trim());
+                    currentColumn = "";
+                } else {
+                    currentColumn += char;
+                }
             }
+            cols.push(currentColumn.trim());
             
             if (cols.length >= 2) {
-                const genre = cols[0] ? cols[0].trim() : "기타";
-                const title = cols[1] ? cols[1].trim() : "";
-                const artist = cols[2] ? cols[2].trim() : "-";
-                const work = cols[3] ? cols[3].trim() : "-";
-                const memo = cols[4] ? cols[4].trim() : "";
-                const date = cols[5] ? cols[5].trim() : "-";
+                const genre = cols[0] || "기타";
+                const title = cols[1] || "";
+                const artist = cols[2] || "-";
+                const work = cols[3] || "-";
+                const memo = cols[4] || "";
+                const date = cols[5] || "-";
 
-                // 첫 줄 제목 열(헤더) 제외 처리
-                if (title === "제목" || title === "") continue;
+                // 헤더 제목줄 스킵
+                if (title === "제목" || !title) continue;
 
                 const needTicket = memo.includes("노래권");
-                // 메모가 완전히 비어있거나, 대시(-)거나, '풀버전' 글씨가 있으면 풀버전 가능 체크
                 const fullVersion = (memo === "" || memo === "-" || memo.includes("풀버전"));
 
                 result.push({ genre, title, artist, work, needTicket, fullVersion, date });
@@ -167,7 +183,6 @@
             return mGenre && mQuery && (!fTicket || song.needTicket) && (!fFull || song.fullVersion);
         });
         
-        // 가나다순 정렬
         filtered.sort((a, b) => a.title.localeCompare(b.title, 'ko'));
         
         if (filtered.length === 0) {
