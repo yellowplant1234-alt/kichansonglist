@@ -38,7 +38,7 @@
 
     <div class="search-area">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="제목, 가수, 작품명 등을 검색하세요..." oninput="filterSongs()">
+            <input type="text" id="searchInput" placeholder="제목, 가수, 나온 작품 등을 검색하세요..." oninput="filterSongs()">
         </div>
         <div class="filter-box">
             <label class="chk-label" style="color: #66bb6a;"><input type="checkbox" id="filterTicket" onchange="filterSongs()"> 🎫 노래권 필요</label>
@@ -56,21 +56,21 @@
                 <th>장르</th>
                 <th>제목</th>
                 <th>가수</th>
-                <th>작품명</th>
+                <th>나온 작품</th>
                 <th>옵션</th>
                 <th>부른 날짜</th>
             </tr>
         </thead>
         <tbody id="songList">
             <tr>
-                <td colspan="6" class="status-msg">🎵 새 구글 시트에서 노래 목록을 가져오는 중...</td>
+                <td colspan="6" class="status-msg">🎵 구글 시트에서 노래 목록을 가져오는 중...</td>
             </tr>
         </tbody>
     </table>
 </div>
 
 <script>
-    // ⭐️ 새로 주신 구글 스프레드시트 주소로 교체 완료!
+    // 유저님의 실시간 구글 스프레드시트 주소
     const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnK9ZViTblOExASkWl7zzdUNlBQqZfyHlajIY5O_Rlv-yvLCnbHafJDsOyKvfg5RKwxgAUobxOUVns/pub?output=csv";
     
     let songData = [];
@@ -81,7 +81,6 @@
         tbody.innerHTML = '<tr><td colspan="6" class="status-msg">🔄 실시간 데이터 동기화 중...</td></tr>';
         
         try {
-            // 주소 뒤에 실시간 시간값을 붙여 폰에서 옛날 화면이 뜨는 버그를 강제 차단
             const cacheBuster = "&t=" + new Date().getTime();
             const response = await fetch(BASE_CSV_URL + cacheBuster);
             const data = await response.text();
@@ -128,12 +127,14 @@
                 const memo = cols[4] || "";
                 const date = cols[5] || "-";
 
-                // 첫 줄 제목 열 헤더 제외 처리
-                if (title === "제목" || !title) continue;
+                // 헤더줄 제외 (장르, 제목, 나온 작품 등 제목 행 필터링)
+                if (title === "제목" || title === "" || genre === "장르") continue;
 
+                // 유저님 시트 맞춤형 매칭: '노래권' 글자가 포함되어 있으면 체크
                 const needTicket = memo.includes("노래권");
-                // 메모란이 공란(비어있음)이거나 대시(-)거나 풀버전 텍스트가 있으면 풀버전 가능 처리
-                const fullVersion = (memo === "" || memo === "-" || memo.includes("풀버전"));
+                
+                // '대강만 가능'이 적혀있으면 풀버전 불가능, 그 외에 비어있거나 다른 글씨면 풀버전 가능 처리
+                const fullVersion = !memo.includes("대강만 가능");
 
                 result.push({ genre, title, artist, work, needTicket, fullVersion, date });
             }
