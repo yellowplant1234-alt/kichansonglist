@@ -8,14 +8,6 @@
         .container { width: 100%; max-width: 1100px; background: #1e1e1e; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         h1 { margin: 0; color: #fff; font-size: 28px; }
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .btn-admin { background: #555; color: #fff; transition: background 0.2s; }
-        .btn-admin:hover { background: #666; }
-        .btn-add { background: #4caf50; color: #fff; width: 100%; padding: 12px; margin-top: 10px; font-size: 16px; }
-        .btn-clear { background: #f44336; color: #fff; width: 100%; padding: 10px; margin-top: 10px; font-size: 14px; }
-        .btn-delete { background: #f44336; color: #fff; padding: 4px 8px; font-size: 12px; border-radius: 4px; }
-        .admin-form { background: #252525; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; border: 1px solid #4caf50; }
-        .admin-form textarea { width: calc(100% - 18px); height: 100px; background: #121212; color: #fff; padding: 8px; border: 1px solid #333; border-radius: 4px; font-family: inherit; }
         .search-area { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
         .search-box { flex: 1; min-width: 250px; }
         .search-box input { width: calc(100% - 24px); padding: 12px; border: 1px solid #333; border-radius: 8px; background: #2a2a2a; color: #fff; font-size: 16px; }
@@ -26,58 +18,20 @@
         .song-table { width: 100%; border-collapse: collapse; }
         .song-table th, .song-table td { padding: 12px; text-align: left; border-bottom: 1px solid #333; vertical-align: middle; }
         .song-table th { background-color: #252525; color: #fff; }
-        .admin-col { display: none; text-align: center; width: 60px; }
-        .tag { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); cursor: default; }
-        .chk-label { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #aaa; margin-right: 10px; cursor: pointer; user-select: none; }
-        .chk-label input { cursor: pointer; width: 15px; height: 15px; accent-color: #4caf50; }
+        .tag { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); }
+        .chk-label { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #aaa; margin-right: 10px; user-select: none; }
+        .chk-label input { width: 15px; height: 15px; accent-color: #4caf50; }
         .chk-label.active { color: #66bb6a; font-weight: bold; }
         .chk-label.active-blue { color: #29b6f6; font-weight: bold; }
-        
-        /* ✏️ 수정 가능한 텍스트 필드 스타일 (관리자 모드 전용) */
-        .editable { padding: 2px 6px; border-radius: 4px; transition: background 0.2s; }
-        .editable.admin-mode { cursor: pointer; }
-        .editable.admin-mode:hover { background: #333; color: #fff; text-decoration: underline; }
-        
-        /* 입력 폼 스타일 */
-        .edit-input { width: 90%; background: #121212; color: #fff; border: 1px solid #4caf50; padding: 4px; border-radius: 4px; font-size: 14px; }
-        .edit-select { background: #121212; color: #fff; border: 1px solid #4caf50; padding: 4px; border-radius: 4px; font-size: 14px; }
-
-        /* 팝업 모달창 스타일 */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 9999; display: none; }
-        .modal-content { background: #252525; padding: 25px; border-radius: 10px; border: 1px solid #4caf50; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 280px; }
-        .modal-content h3 { margin-top: 0; color: #fff; }
-        .modal-content input { width: calc(100% - 20px); padding: 10px; background: #121212; border: 1px solid #444; border-radius: 6px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 15px; }
-        .modal-btns { display: flex; gap: 10px; justify-content: center; }
-        .btn-confirm { background: #4caf50; color: #fff; padding: 8px 20px; }
-        .btn-cancel { background: #555; color: #fff; padding: 8px 20px; }
+        .status-msg { text-align: center; padding: 20px; color: #aaa; font-size: 16px; }
     </style>
 </head>
 <body>
 
-<div class="modal-overlay" id="loginModal">
-    <div class="modal-content">
-        <h3>🔑 관리자 인증</h3>
-        <input type="password" id="modalPasswordInput" placeholder="비밀번호 입력..." onkeydown="handleModalKeyDown(event)">
-        <div class="modal-btns">
-            <button class="btn btn-confirm" onclick="checkAdminPassword()">확인</button>
-            <button class="btn btn-cancel" onclick="closeLoginModal()">취소</button>
-        </div>
-    </div>
-</div>
-
 <div class="container">
     <div class="header-area">
         <h1>기찬아 노래책🎶</h1>
-        <button class="btn btn-admin" id="adminToggleBtn" onclick="handleAdminButtonClick()">🔒 관리자 로그인</button>
-    </div>
-    
-    <div class="admin-form" id="adminForm">
-        <h3 style="margin-top:0; color:#4caf50;">📋 엑셀 내용 한 번에 붙여넣기</h3>
-        <p style="font-size:13px; color:#aaa; margin-top:0;">구글 스프레드시트에서 행들을 복사(Ctrl+C) 후 아래에 붙여넣기(Ctrl+V) 하세요!</p>
-        <textarea id="excelPasteArea" placeholder="여기에 엑셀 데이터를 붙여넣으세요...&#10;(순서: 장르 | 제목 | 가수 | 작품명 | 메모 | 부른날짜)"></textarea>
-        <button class="btn btn-add" onclick="importClipboardData()">노래 목록에 통째로 반영하기</button>
-        <hr style="border: 0; border-top: 1px solid #444; margin: 15px 0;">
-        <button class="btn btn-clear" onclick="clearAllSongs()">⚠️ 노래 목록 데이터 전체 삭제</button>
+        <span style="font-size: 13px; color: #888;">📊 구글 시트 실시간 연동 중</span>
     </div>
 
     <div class="search-area">
@@ -103,37 +57,73 @@
                 <th>작품명</th>
                 <th>옵션</th>
                 <th>부른 날짜</th>
-                <th class="admin-col">관리</th>
             </tr>
         </thead>
-        <tbody id="songList"></tbody>
+        <tbody id="songList">
+            <tr>
+                <td colspan="6" class="status-msg">🎵 노래 목록을 불러오는 중입니다...</td>
+            </tr>
+        </tbody>
     </table>
 </div>
 
 <script>
-    const ADMIN_PASSWORD = "0130"; 
-    const STORAGE_KEY = "kichanSongBookFinal_v4"; // 데이터 구조 변경으로 키 업데이트
+    // 보내주신 구글 스프레드시트 CSV 주소 연결
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY8YUDFCMJyNq3Ezy0eiI_vhwDVn4dWGC22fv7nKkbnQUwc-bLJ1QvdhZF-RwYgNqJXO4IESweU5P_/pub?gid=0&single=true&output=csv";
     
-    let songData = [
-        { genre: "애니", title: "IDOL", artist: "YOASOBI", work: "최애의 아이", needTicket: true, fullVersion: true, date: "2026-05-10" },
-        { genre: "팝송", title: "Shape of You", artist: "Ed Sheeran", work: "🔥", needTicket: false, fullVersion: true, date: "-" },
-        { genre: "가요", title: "기억을 걷는 시간", artist: "넬", work: "🍂", needTicket: true, fullVersion: false, date: "2026-06-01" }
-    ];
+    let songData = [];
     let currentGenre = "전체";
-    let isAdmin = false;
 
-    function init() {
+    // 구글 시트에서 데이터 받아오기
+    async function fetchSheetData() {
         try {
-            const savedData = localStorage.getItem(STORAGE_KEY);
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                if (Array.isArray(parsed)) songData = parsed;
-            }
-        } catch(e) {
-            console.error(e);
+            const response = await fetch(SHEET_CSV_URL);
+            const data = await response.text();
+            parseCSV(data);
+            renderTabs();
+            filterSongs();
+        } catch (error) {
+            console.error("데이터 로드 실패:", error);
+            document.getElementById("songList").innerHTML = '<tr><td colspan="6" class="status-msg" style="color:#f44336;">❌ 데이터를 불러오지 못했습니다. 스프레드시트 웹 게시 설정을 확인해 주세요.</td></tr>';
         }
-        renderTabs();
-        filterSongs();
+    }
+
+    // CSV 데이터 파싱 (쉼표 및 따옴표 예외처리 포함)
+    function parseCSV(text) {
+        const lines = text.split("\n");
+        const result = [];
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            // CSV 행 분리 규칙
+            const cols = [];
+            let match;
+            const lexer = /"([^"\\]*(?:\\.[^"\\]*)*)"|([^,]+)|(?<=,)(?=,)|^(?=,)|(?<=,)$/g;
+            while ((match = lexer.exec(line)) !== null) {
+                cols.push(match[1] || match[2] || "");
+            }
+            
+            if (cols.length >= 2) {
+                const genre = cols[0] ? cols[0].trim() : "기타";
+                const title = cols[1] ? cols[1].trim() : "";
+                const artist = cols[2] ? cols[2].trim() : "-";
+                const work = cols[3] ? cols[3].trim() : "-";
+                const memo = cols[4] ? cols[4].trim() : "";
+                const date = cols[5] ? cols[5].trim() : "-";
+
+                // 첫 줄 제목 열(헤더) 제외 처리
+                if (title === "제목" || title === "") continue;
+
+                const needTicket = memo.includes("노래권");
+                // 메모가 완전히 비어있거나, 대시(-)거나, '풀버전' 글씨가 있으면 풀버전 가능 체크
+                const fullVersion = (memo === "" || memo === "-" || memo.includes("풀버전"));
+
+                result.push({ genre, title, artist, work, needTicket, fullVersion, date });
+            }
+        }
+        songData = result;
     }
 
     function getGenreColor(genre) {
@@ -144,174 +134,19 @@
         return colors[Math.abs(hash) % colors.length];
     }
 
-    // 존재하는 모든 장르 목록 추출 함수 (드롭다운 채우기용)
-    function getAllGenres() {
-        const uniqueGenres = [];
-        songData.forEach(function(s) {
-            if (s.genre && uniqueGenres.indexOf(s.genre) === -1) {
-                uniqueGenres.push(s.genre);
-            }
-        });
-        if (uniqueGenres.length === 0) uniqueGenres.push("기타");
-        return uniqueGenres;
-    }
-
-    function handleAdminButtonClick() {
-        if (!isAdmin) {
-            document.getElementById("loginModal").style.display = "flex";
-            document.getElementById("modalPasswordInput").value = "";
-            setTimeout(function() { document.getElementById("modalPasswordInput").focus(); }, 50);
-        } else {
-            isAdmin = false;
-            document.getElementById("adminToggleBtn").innerText = "🔒 관리자 로그인";
-            document.getElementById("adminToggleBtn").style.backgroundColor = "#555";
-            document.getElementById("adminForm").style.display = "none";
-            filterSongs();
-        }
-    }
-
-    function closeLoginModal() {
-        document.getElementById("loginModal").style.display = "none";
-    }
-
-    function checkAdminPassword() {
-        if (document.getElementById("modalPasswordInput").value === ADMIN_PASSWORD) {
-            isAdmin = true;
-            document.getElementById("adminToggleBtn").innerText = "🔓 로그아웃";
-            document.getElementById("adminToggleBtn").style.backgroundColor = "#4caf50";
-            document.getElementById("adminForm").style.display = "block";
-            closeLoginModal();
-            filterSongs();
-        } else {
-            alert("암호가 틀렸습니다!");
-            document.getElementById("modalPasswordInput").value = "";
-            document.getElementById("modalPasswordInput").focus();
-        }
-    }
-
-    function handleModalKeyDown(e) { if (e.key === 'Enter') checkAdminPassword(); }
-
-    function importClipboardData() {
-        const text = document.getElementById("excelPasteArea").value.trim();
-        if (!text) { alert("붙여넣은 내용이 없습니다!"); return; }
-        const rows = text.split("\n");
-        let addedCount = 0;
-        rows.forEach(function(row) {
-            const cols = row.split("\t");
-            if (cols.length >= 2) {
-                const genre = cols[0] ? cols[0].trim() : "기타";
-                const title = cols[1] ? cols[1].trim() : "";
-                const artist = cols[2] ? cols[2].trim() : "";
-                const work = cols[3] ? cols[3].trim() : "-";
-                const memo = cols[4] ? cols[4].trim() : "";
-                const date = cols[5] ? cols[5].trim() : "-";
-                
-                if (title && title !== "제목") {
-                    const needTicket = memo.includes("노래권");
-                    // ⭐ [피드백 반영] 메모란이 공란(비어있음)이거나 "풀버전" 텍스트를 포함하고 있으면 풀버전 가능 처리
-                    const fullVersion = (memo === "" || memo === "-" || memo.includes("풀버전"));
-
-                    songData.push({ genre: genre, title: title, artist: artist, work: work, needTicket: needTicket, fullVersion: fullVersion, date: date });
-                    addedCount++;
-                }
-            }
-        });
-        if (addedCount > 0) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(songData));
-            document.getElementById("excelPasteArea").value = "";
-            renderTabs(); filterSongs();
-            alert("총 " + addedCount + "곡 성공적으로 추가! 🎉");
-        }
-    }
-
-    function clearAllSongs() {
-        if (confirm("모든 노래 데이터를 삭제하시겠습니까?")) {
-            songData = [];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(songData));
-            renderTabs(); filterSongs();
-        }
-    }
-
-    function deleteSong(idx) {
-        if (confirm("정말 삭제하시겠습니까?")) {
-            songData.splice(idx, 1);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(songData));
-            renderTabs(); filterSongs();
-        }
-    }
-
-    function updateCheckbox(idx, field, checked) {
-        if(songData[idx]) {
-            songData[idx][field] = checked;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(songData));
-            filterSongs();
-        }
-    }
-
-    // ⭐ [피드백 반영] 장르를 드롭다운(Select)으로 변경하는 함수
-    function editGenre(element, idx) {
-        if (!isAdmin || element.querySelector('select')) return;
-        const currentGen = songData[idx].genre;
-        const genres = getAllGenres();
-        
-        const select = document.createElement('select');
-        select.className = 'edit-select';
-        
-        genres.forEach(function(g) {
-            const opt = document.createElement('option');
-            opt.value = g; opt.innerText = g;
-            if (g === currentGen) opt.selected = true;
-            select.appendChild(opt);
-        });
-
-        element.innerHTML = '';
-        element.appendChild(select);
-        select.focus();
-
-        const save = function() {
-            const newVal = select.value;
-            songData[idx].genre = newVal;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(songData));
-            renderTabs(); filterSongs();
-        };
-
-        select.onblur = save;
-        select.onchange = save;
-    }
-
-    // ⭐ [피드백 반영] 제목, 가수, 작품명, 날짜 통합 수정 처리 함수
-    function editText(element, idx, field) {
-        if (!isAdmin || element.querySelector('input')) return;
-        const oldVal = element.innerText === '-' ? '' : element.innerText;
-        
-        const input = document.createElement('input');
-        input.type = 'text'; input.className = 'edit-input'; input.value = oldVal;
-        
-        element.innerHTML = '';
-        element.appendChild(input);
-        input.focus();
-
-        const save = function() {
-            const newVal = input.value.trim() || "-";
-            songData[idx][field] = newVal;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(songData));
-            filterSongs();
-        };
-
-        input.onblur = save;
-        input.onkeydown = function(e) {
-            if (e.key === 'Enter') save();
-            if (e.key === 'Escape') { filterSongs(); }
-        };
-    }
-
     function renderTabs() {
         const container = document.getElementById("genreTabs");
         if (!container) return;
-        const genres = ["전체"].concat(getAllGenres());
-        container.innerHTML = genres.map(function(g) {
-            return '<button class="tab-btn ' + (g === currentGenre ? 'active' : '') + '" onclick="selectGenre(\'' + g + '\')">' + g + '</button>';
-        }).join('');
+        
+        const uniqueGenres = [];
+        songData.forEach(s => {
+            if (s.genre && !uniqueGenres.includes(s.genre)) uniqueGenres.push(s.genre);
+        });
+        
+        const genres = ["전체", ...uniqueGenres];
+        container.innerHTML = genres.map(g => 
+            `<button class="tab-btn ${g === currentGenre ? 'active' : ''}" onclick="selectGenre('${g}')">${g}</button>`
+        ).join('');
     }
 
     function selectGenre(g) { currentGenre = g; renderTabs(); filterSongs(); }
@@ -320,45 +155,42 @@
         const query = document.getElementById("searchInput").value.toLowerCase();
         const tbody = document.getElementById("songList");
         if (!tbody) return;
+        
         const fTicket = document.getElementById("filterTicket").checked;
         const fFull = document.getElementById("filterFull").checked;
-        document.querySelectorAll(".admin-col").forEach(function(col) { col.style.display = isAdmin ? "table-cell" : "none"; });
         
-        let filtered = [];
-        songData.forEach(function(song, idx) {
+        let filtered = songData.filter(song => {
             const mGenre = (currentGenre === "전체" || song.genre === currentGenre);
-            const mQuery = (song.title || '').toLowerCase().includes(query) || (song.artist || '').toLowerCase().includes(query) || (song.work || '').toLowerCase().includes(query);
-            if (mGenre && mQuery && (!fTicket || song.needTicket) && (!fFull || song.fullVersion)) {
-                filtered.push(Object.assign({}, song, { originalIndex: idx }));
-            }
+            const mQuery = song.title.toLowerCase().includes(query) || 
+                           song.artist.toLowerCase().includes(query) || 
+                           song.work.toLowerCase().includes(query);
+            return mGenre && mQuery && (!fTicket || song.needTicket) && (!fFull || song.fullVersion);
         });
         
-        filtered.sort(function(a, b) { return (a.title || '').localeCompare(b.title || '', 'ko'); });
+        // 가나다순 정렬
+        filtered.sort((a, b) => a.title.localeCompare(b.title, 'ko'));
         
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="' + (isAdmin ? 7 : 6) + '" style="text-align:center; padding:30px; color:#888;">결과가 없습니다. 🥲</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="status-msg">결과가 없습니다. 🥲</td></tr>';
             return;
         }
         
-        tbody.innerHTML = filtered.map(function(s) {
-            const adminModeClass = isAdmin ? "admin-mode" : "";
-            return '<tr>' +
-                // 장르 클릭 시 드롭다운 변경 가능하게 세팅
-                '<td><span class="tag ' + adminModeClass + '" style="background-color: ' + getGenreColor(s.genre) + ';" onclick="editGenre(this.parentNode, ' + s.originalIndex + ')">' + s.genre + '</span></td>' +
-                // 제목, 가수, 작품명 더블클릭/클릭 수정 바인딩
-                '<td><span class="editable ' + adminModeClass + '" style="font-weight:bold; color:#fff;" onclick="editText(this, ' + s.originalIndex + ', \'title\')">' + s.title + '</span></td>' +
-                '<td><span class="editable ' + adminModeClass + '" onclick="editText(this, ' + s.originalIndex + ', \'artist\')">' + s.artist + '</span></td>' +
-                '<td><span class="editable ' + adminModeClass + '" style="color: #aaa; font-size: 14px;" onclick="editText(this, ' + s.originalIndex + ', \'work\')">' + (s.work || '-') + '</span></td>' +
-                '<td>' +
-                    '<label class="chk-label ' + (s.needTicket ? 'active' : '') + '"><input type="checkbox" ' + (s.needTicket ? 'checked' : '') + ' ' + (isAdmin ? "" : "disabled") + ' onchange="updateCheckbox(' + s.originalIndex + ', \'needTicket\', this.checked)"> 노래권 필요</label>' +
-                    '<label class="chk-label ' + (s.fullVersion ? 'active-blue' : '') + '"><input type="checkbox" ' + (s.fullVersion ? 'checked' : '') + ' ' + (isAdmin ? "" : "disabled") + ' onchange="updateCheckbox(' + s.originalIndex + ', \'fullVersion\', this.checked)"> 풀버전 가능</label>' +
-                '</td>' +
-                '<td><span class="editable ' + adminModeClass + '" style="color: #66bb6a; font-size: 14px;" onclick="editText(this, ' + s.originalIndex + ', \'date\')">' + (s.date || '-') + '</span></td>' +
-                '<td class="admin-col" style="display: ' + (isAdmin ? 'table-cell' : 'none') + '; text-align:center;"><button class="btn btn-delete" onclick="deleteSong(' + s.originalIndex + ')">삭제</button></td>' +
-            '</tr>';
-        }).join('');
+        tbody.innerHTML = filtered.map(s => `
+            <tr>
+                <td><span class="tag" style="background-color: ${getGenreColor(s.genre)};">${s.genre}</span></td>
+                <td style="font-weight:bold; color:#fff;">${s.title}</td>
+                <td>${s.artist}</td>
+                <td><span style="color: #aaa; font-size: 14px;">${s.work}</span></td>
+                <td>
+                    <label class="chk-label ${s.needTicket ? 'active' : ''}"><input type="checkbox" ${s.needTicket ? 'checked' : ''} disabled> 노래권 필요</label>
+                    <label class="chk-label ${s.fullVersion ? 'active-blue' : ''}"><input type="checkbox" ${s.fullVersion ? 'checked' : ''} disabled> 풀버전 가능</label>
+                </td>
+                <td><span style="color: #66bb6a; font-size: 14px;">${s.date}</span></td>
+            </tr>
+        `).join('');
     }
-    window.onload = init;
+
+    window.onload = fetchSheetData;
 </script>
 </body>
 </html>
