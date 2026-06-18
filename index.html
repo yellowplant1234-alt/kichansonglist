@@ -63,15 +63,15 @@
         </thead>
         <tbody id="songList">
             <tr>
-                <td colspan="6" class="status-msg">🎵 구글 시트에서 노래 목록을 가져오는 중...</td>
+                <td colspan="6" class="status-msg">🎵 새 구글 시트에서 노래 목록을 가져오는 중...</td>
             </tr>
         </tbody>
     </table>
 </div>
 
 <script>
-    // 캐시 방지를 위해 주소 뒤에 실시간 시간(Timestamp)이 자동으로 붙도록 주소 튜닝
-    const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRY8YUDFCMJyNq3Ezy0eiI_vhwDVn4dWGC22fv7nKkbnQUwc-bLJ1QvdhZF-RwYgNqJXO4IESweU5P_/pub?gid=0&single=true&output=csv";
+    // ⭐️ 새로 주신 구글 스프레드시트 주소로 교체 완료!
+    const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnK9ZViTblOExASkWl7zzdUNlBQqZfyHlajIY5O_Rlv-yvLCnbHafJDsOyKvfg5RKwxgAUobxOUVns/pub?output=csv";
     
     let songData = [];
     let currentGenre = "전체";
@@ -81,7 +81,7 @@
         tbody.innerHTML = '<tr><td colspan="6" class="status-msg">🔄 실시간 데이터 동기화 중...</td></tr>';
         
         try {
-            // 브라우저가 옛날 데이터를 기억하지 못하게 주소 강제 차단 갱신
+            // 주소 뒤에 실시간 시간값을 붙여 폰에서 옛날 화면이 뜨는 버그를 강제 차단
             const cacheBuster = "&t=" + new Date().getTime();
             const response = await fetch(BASE_CSV_URL + cacheBuster);
             const data = await response.text();
@@ -95,7 +95,6 @@
         }
     }
 
-    // 쉼표나 따옴표 오류로 튕기지 않도록 대폭 보완한 안전한 파싱 로직
     function parseSimpleCSV(text) {
         const lines = text.split(/\r?\n/);
         const result = [];
@@ -104,7 +103,6 @@
             let line = lines[i].trim();
             if (!line) continue;
             
-            // 단순 쉼표 분할이 아니라 엑셀 특유의 줄 꼬임 방지 처리
             let cols = [];
             let insideQuote = false;
             let currentColumn = "";
@@ -130,10 +128,11 @@
                 const memo = cols[4] || "";
                 const date = cols[5] || "-";
 
-                // 헤더 제목줄 스킵
+                // 첫 줄 제목 열 헤더 제외 처리
                 if (title === "제목" || !title) continue;
 
                 const needTicket = memo.includes("노래권");
+                // 메모란이 공란(비어있음)이거나 대시(-)거나 풀버전 텍스트가 있으면 풀버전 가능 처리
                 const fullVersion = (memo === "" || memo === "-" || memo.includes("풀버전"));
 
                 result.push({ genre, title, artist, work, needTicket, fullVersion, date });
